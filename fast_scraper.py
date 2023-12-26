@@ -3,7 +3,10 @@ import aiohttp
 import csv
 import requests
 from tqdm import tqdm
+import random
+import time
 from urllib.parse import urljoin, urlencode
+
 
 
 url = 'https://shopee.vn/api/v4/recommend/recommend'
@@ -107,19 +110,23 @@ def login(email, password):
 
 def convert_cookies(requests_cookies):
     return {c.name: c.value for c in requests_cookies}
-async def fetch(session, url, params):
+async def fetch(session, url, params, proxies):
+    proxy = random.choice(proxies)
     try:
-        async with session.get(url, params=params) as response:
+        async with session.get(url, params=params, proxy=proxy) as response:
             if response.status == 200:
+                print("Working proxies:" + proxy)
                 return await response.json()
             else:
+                print("error" + proxy)
+                proxies.remove(proxy)
                 return {'error': True, 'status': response.status}
     except Exception as e:
-        return {'error': True, 'message': f'Error in fetch: {str(e)}'}
+        return {'error': True, 'message': f'Error in fetch with proxy {proxy}: {str(e)}'}
 
-async def fetch_all(session, url_params_pairs):
+async def fetch_all(session, url_params_pairs, proxies):
     results = await asyncio.gather(
-        *[fetch(session, url, params) for url, params in url_params_pairs],
+        *[fetch(session, url, params, proxies) for url, params in url_params_pairs],
         return_exceptions=True
     )
     return results
@@ -157,17 +164,27 @@ def write_to_csv(extracted_data, csv_file, csv_columns):
         for data in extracted_data:
             writer.writerow(data)
 
+def format_proxy(file_path):
+    with open(file_path, 'r') as file:
+        proxies = file.read().splitlines()
+    formatted_proxies = []
+    for proxy in proxies:
+        formatted_proxies.append("http://" +proxy)
+    return formatted_proxies
 
 async def main():
+    tic = time.perf_counter()
     email = 'bluec2311@gmail.com'
     password = '974d40ced6bc6d28c6debc9a6454964a864a905107140634d126f87e58f364aa'
 
-    # Perform login
-    session_requests = login(email, password)
-    if session_requests:
-        # Convert cookies for aiohttp
-        cookies = convert_cookies(session_requests.cookies)
-
+    # Perform login to set the cookies if needed
+    # session_requests = login(email, password)
+    # if session_requests:
+    #     # Convert cookies for aiohttp
+    #     cookies = convert_cookies(session_requests.cookies)
+    file_path = 'proxies.txt'  # Replace with your actual file path
+    formatted_proxies = format_proxy(file_path)
+    print(formatted_proxies)
     async with aiohttp.ClientSession(cookies=cookies, headers=headers) as session:
         categories = await session.get('https://shopee.vn/api/v4/pages/get_category_tree')
         categories_json = await categories.json()
@@ -178,22 +195,24 @@ async def main():
     url_params_pairs = [(url, {**params, 'catid': str(cat_id)}) for cat_id in child_id]
 
     async with aiohttp.ClientSession(cookies=cookies, headers=headers) as session:
-        responses = await fetch_all(session, url_params_pairs)
+        responses = await fetch_all(session, url_params_pairs, formatted_proxies)
 
     csv_file = "products.csv"
     csv_columns = ['product_id', 'product_name', 'product_url', 'product_rating', 'product_price', 'historical_sold',
                    'product_revenue']
     #print(responses)
-    for response in tqdm(responses, desc="Processing Responses"):
-
+    for response in responses:
         if response and not response.get('error'):
             extracted_data = process_response(response)
             write_to_csv(extracted_data, csv_file, csv_columns)
         else:
-            #Handle the error case, e.g., log it
             print(f"Error in response: {response}")
+    toc = time.perf_counter()
+    print(f"Done in {toc - tic:0.4f} seconds")
 
 
 # Run the main function
 loop = asyncio.get_event_loop()
 loop.run_until_complete(main())
+row_count = sum(1 for line in open('products.csv'))
+print("Total line got is " + str(row_count))
