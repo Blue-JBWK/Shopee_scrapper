@@ -4,7 +4,8 @@ import csv
 import requests
 from tqdm import tqdm
 from urllib.parse import urljoin, urlencode
-# URL and headers remain the same
+
+
 url = 'https://shopee.vn/api/v4/recommend/recommend'
 
 cookies = {
@@ -47,7 +48,6 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/119.0',
     'Accept': '*/*',
     'Accept-Language': 'en-US,en;q=0.5',
-    # 'Accept-Encoding': 'gzip, deflate, br',
     'Referer': 'https://shopee.vn/Th%E1%BB%9Di-Trang-Nam-cat.11035567',
     'X-Shopee-Language': 'vi',
     'X-Requested-With': 'XMLHttpRequest',
@@ -59,18 +59,14 @@ headers = {
     'Sec-Fetch-Dest': 'empty',
     'Sec-Fetch-Mode': 'cors',
     'Sec-Fetch-Site': 'same-origin',
-    'Connection': 'keep-alive',
-    # 'Cookie': '_gcl_au=1.1.484966276.1703145432; _med=affiliates; csrftoken=BOoeaEOuPTTu3CqcHb5bZRTlYyJei7fl; _sapid=2049be44f8a63d21050ef4ae47d0148ff5fdf7a2af5a3f3a9e5ac55d; SPC_SI=s2+BZQAAAABsSHlVUDB5WPKVIQAAAAAAYzc2STdGdWY=; SPC_SEC_SI=v1-MFFjU3ZMempUeVBHOU02bY++geQjQa4gwsRvL2atTnhmDd7HBk+pFeC8tFDuNvvE7VSsG1v7ZfhavC5XnJAEK80l7SK7TGtgzXu6lERLLu8=; _QPWSDCXHZQA=b44f1e7f-7f3b-4c34-b5b4-24ecf5c68177; REC7iLP4Q=98af4814-7c84-4e7b-8b71-30bb29207457; _ga_4GPP1ZXG63=GS1.1.1703162070.5.1.1703164833.0.0.0; _ga=GA1.2.267206771.1703145434; _fbp=fb.1.1703145433506.2027171804; SPC_T_ID=tQ2X4CnjcPeTZs27vdoike3OHy/USbkbmfLVzdKz/bbWinZZ94ur5sygTC29hZy+h9mFnFw4HV3TcCitzyyIAVi6YlSUJLkxAv9ep0GY8E1Zwmb6UFihcQ4BRpZSFloojd+E9UAh+6lz8dNObk6bdEgPSeJcxXVD996AuJhuIAw=; SPC_T_IV=djBjaWhSVnFram9rM000NA==; SPC_F=JP1HBbYqT0kA60x8Ck1J3GfjCyfL10vl; REC_T_ID=8d24c7a2-9fd6-11ee-b637-92d0ee91ef2f; SPC_R_T_ID=tQ2X4CnjcPeTZs27vdoike3OHy/USbkbmfLVzdKz/bbWinZZ94ur5sygTC29hZy+h9mFnFw4HV3TcCitzyyIAVi6YlSUJLkxAv9ep0GY8E1Zwmb6UFihcQ4BRpZSFloojd+E9UAh+6lz8dNObk6bdEgPSeJcxXVD996AuJhuIAw=; SPC_R_T_IV=djBjaWhSVnFram9rM000NA==; _gid=GA1.2.408444429.1703145435; shopee_webUnique_ccd=YF4IZnXUjqraQ%2B1XLUwlxg%3D%3D%7CvHuFfC2z2%2FpMGOIbZCCHpjNbsveXpjZ0dqHZ8%2FBogYEUQgbR84os7q6gMXEA6X1RAwxQ0lSxsYE%2Fa8E%3D%7C5t7xuSv3cwvdfFaL%7C08%7C3; ds=ad9eabc005d88616ae5c9fb2346faabc; _hjSessionUser_868286=eyJpZCI6IjllYTZkMWFkLTUwOWQtNTM2Yi1hZWEyLWIxYWI3MzRmY2IzMCIsImNyZWF0ZWQiOjE3MDMxNDU0MzUxODUsImV4aXN0aW5nIjp0cnVlfQ==; _hjIncludedInSessionSample_868286=0; SPC_CLIENTID=SlAxSEJiWXFUMGtBcahihdachfobvrmc; SPC_U=291346699; _ga_3XVGTY3603=GS1.1.1703162009.2.1.1703162224.60.0.0; SPC_SC_SA_TK=; SPC_SC_SA_UD=; AMP_TOKEN=%24NOT_FOUND; _hjSession_868286=eyJpZCI6ImQ0NTkxMjQyLTRmMjMtNGY1NS1iNWNmLTk5N2U1YWI3MjVmYiIsImMiOjE3MDMxNjIwNzAyODEsInMiOjAsInIiOjAsInNiIjoxfQ==; _hjAbsoluteSessionInProgress=0; _ga_FV78QC1144=GS1.1.1703162197.1.0.1703162198.59.0.0; SPC_EC=.SmpRRGI3cUVhbnh2Nk9XTzjtTGmXQfzFq3Mqd+YEI4tH5buJPQ59dRqNeRtDaBM3VYUNkvKTgGrpCd4UXbqTUScO2fTasb1OseKQjSZspNVOLtrgqdoZbeynA2knp22wDHi0R4VXY47zO2XSGO5dpt7ceIHyMVUBJeoHdMpZYb8ltyyJKxsFa+GuUduUecX1hSmUcvuMJKMxElPSG3bCL2pDWT2FCAKa9tL2/Wk5/K8=; SPC_ST=.SmpRRGI3cUVhbnh2Nk9XTzjtTGmXQfzFq3Mqd+YEI4tH5buJPQ59dRqNeRtDaBM3VYUNkvKTgGrpCd4UXbqTUScO2fTasb1OseKQjSZspNVOLtrgqdoZbeynA2knp22wDHi0R4VXY47zO2XSGO5dpt7ceIHyMVUBJeoHdMpZYb8ltyyJKxsFa+GuUduUecX1hSmUcvuMJKMxElPSG3bCL2pDWT2FCAKa9tL2/Wk5/K8=',
-    # Requests doesn't support trailers
-    # 'TE': 'trailers',
+    'Connection': 'keep-alive'
 }
 
 params = {
     'bundle': 'category_landing_page',
     'cat_level': '2',
     'limit': '500',
-    'offset': '0',
-    'catid': '11035568'
+    'offset': '0'
 }
 
 def login(email, password):
@@ -113,11 +109,7 @@ def convert_cookies(requests_cookies):
     return {c.name: c.value for c in requests_cookies}
 async def fetch(session, url, params):
     try:
-        full_url = url + '?' + urlencode(params)
-        print(f"Making request to URL: {full_url}")
         async with session.get(url, params=params) as response:
-            response_data = await response.text()  # Get the raw response text
-            print(f"URL: {url}, Params: {params}, Response: {response_data}")  # Print the response
             if response.status == 200:
                 return await response.json()
             else:
@@ -187,20 +179,19 @@ async def main():
 
     async with aiohttp.ClientSession(cookies=cookies, headers=headers) as session:
         responses = await fetch_all(session, url_params_pairs)
-    #responses = await fetch_all(urls, params_list, asyncio.get_event_loop())
 
     csv_file = "products.csv"
     csv_columns = ['product_id', 'product_name', 'product_url', 'product_rating', 'product_price', 'historical_sold',
                    'product_revenue']
-    print(responses)
-    # for response in tqdm(responses, desc="Processing Responses"):
-    #
-    #     if response and not response.get('error'):
-    #         extracted_data = process_response(response)
-    #         write_to_csv(extracted_data, csv_file, csv_columns)
-    #     else:
-    #         #Handle the error case, e.g., log it
-    #         print(f"Error in response: {response}")
+    #print(responses)
+    for response in tqdm(responses, desc="Processing Responses"):
+
+        if response and not response.get('error'):
+            extracted_data = process_response(response)
+            write_to_csv(extracted_data, csv_file, csv_columns)
+        else:
+            #Handle the error case, e.g., log it
+            print(f"Error in response: {response}")
 
 
 # Run the main function
